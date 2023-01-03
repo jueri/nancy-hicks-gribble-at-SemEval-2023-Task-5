@@ -129,6 +129,7 @@ dmypy.json
 .pyre/
 Data/*
 !.gitkeep
+!Data/passage.csv
 wandb
 results/
 
