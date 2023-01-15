@@ -1,0 +1,7 @@
+install 
+pandas 
+jupyterlab
+docker
+transformers
+tqdm
+torch
