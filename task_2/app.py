@@ -72,8 +72,10 @@ def get_multi(row, model_multi):
         candidates = model_multi.predict(question, current_context)[0]
         current_result = candidates['answer']
         results.append(current_result)
-        current_context = re.sub(current_result, '', current_context)
-    
+        try:
+            current_context = re.sub(current_result, '', current_context)
+        except:
+            print("Error generating multipart spoiler")
     return results
     
 
