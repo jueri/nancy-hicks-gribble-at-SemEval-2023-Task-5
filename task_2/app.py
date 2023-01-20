@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/local/bin/python3
 import argparse
 import json
 import pandas as pd
@@ -14,7 +14,7 @@ class Qa_model:
     def __init__(self, model_name, num_answers = 1):
         self.model_name = model_name
         self.num_answers = num_answers
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, cache_dir=self.model_name, local_files_only=True)
         self.model = pipeline("question-answering", self.model_name, tokeniezer = self.tokenizer, max_length=500, truncation=True, return_overflowing_tokens=True, stride = 128, top_k= self.num_answers)
                      #pipeline("question-answering", "deepset/roberta-base-squad2", tokenizer = AutoTokenizer.from_pretrained("deepset/roberta-base-squad2"), max_length=500
                       #              , truncation=True, return_overflowing_tokens=True, stride=doc_stride, top_k=5)
@@ -103,8 +103,8 @@ def run_baseline(input_file, output_file, model_phrase, model_passage, model_mul
 
 
 if __name__ == '__main__':
-    model = Qa_model("deepset/roberta-base-squad2")
-    model_multi = Qa_model("deepset/roberta-base-squad2", 5)
+    model = Qa_model("/model")
+    model_multi = Qa_model("/model", 5)
     args = parse_args()
     run_baseline(args.input, args.output, model_phrase = model, model_passage = model, model_multi = model_multi)
     #run_baseline(input_file="/Users/nicolasrehbach/Documents/GitHub/ANLP2223/Data/webis-clickbait-22/train.jsonl", output_file="test.jsonl", model_phrase = model, model_passage = model, model_multi = model_multi)
