@@ -1,4 +1,4 @@
-# Build: docker build -t registry.webis.de/code-research/tira/tira-user-nancy-hicks-gribble/task-2:0.0.1 .
+# Build: docker build -t registry.webis.de/code-research/tira/tira-user-nancy-hicks-gribble/task-1-oao-news:0.0.1 .
 # Run: docker run [image] --input Data/webis-clickbait-22/validation.jsonl --output ./run.jsonl
 FROM python:3.6
 

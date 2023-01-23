@@ -15,7 +15,7 @@ def load_dataset(
     fields: List[str], 
     files: Dict[str, str]) -> pd.DataFrame:
     
-    mapping: Dict[str, str]={'passage': 0, 'phrase':1, 'multi':2}
+    mapping: Dict[str, int]={'passage': 0, 'phrase':1, 'multi':2}
 
     dataset = {}
     
@@ -75,6 +75,9 @@ def preprocess_dataset(dataset: List[Dict[str, List[str]]], model_base: str, mod
 
 
 def create_model(model_base: str, model_name: str, dataset):
+    # Get num labels
+    num_label = len(dataset[list(dataset.keys())[0]].unique("label"))
+
     if model_base.startswith("roberta"):
         from transformers import RobertaTokenizer
         tokenizer = RobertaTokenizer.from_pretrained(model_name)
@@ -114,7 +117,7 @@ def create_model(model_base: str, model_name: str, dataset):
 
     data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
-    model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=3)
+    model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=num_label)
 
     trainer = Trainer(
         model=model,
@@ -131,37 +134,83 @@ def create_model(model_base: str, model_name: str, dataset):
     return trainer
 
 
+def config_name(model, fields, mapping):
+    now = datetime.now().strftime("%Y-%m-%d-T%H-%M-%S")
+    if sum(mapping.values())> 1:
+        type_ = "multiclass"
+    else:
+        type_ =  [k for k, v in mapping.items() if v == 1][0]
+    return model+"_"+str(len(fields))+"_"+type_+"_"+now
+
+
 if __name__ == "__main__":
-    # Hyperparameter
     LOGGING = True
-    FIELDS = ["postText", "targetTitle", "targetParagraphs"]
     MODEL_BASE = "roberta"
-    # MODEL_NAME = "roberta-base"
-    MODEL_NAME = "Models/roberta-news-full/checkpoint-21342"
-    PROJECT_NAME = "PAN"
+    PROJECT_NAME = "PAN-classification"
 
     now = datetime.now().strftime("%Y%m%dT%H%M%S")
-
     data_paths = {
         "train": "Data/webis-clickbait-22/train.jsonl", 
         "validation":"Data/webis-clickbait-22/validation.jsonl"}
 
-
-    # Load dataset
-    dataset = load_dataset(fields=FIELDS, files=data_paths)
-    dataset = preprocess_dataset(dataset=dataset, model_base=MODEL_BASE, model_name=MODEL_NAME)
-
-
-    # Logging
-    if LOGGING:
-        wandb.init(project=PROJECT_NAME, entity="jueri")
+    # Grid search
+    models = ["roberta-base", "roberta-news-full"]
+    field_config = [["postText"], ["postText", "targetTitle"], ["postText", "targetTitle", "targetParagraphs"]]
+    types = ["multiclass", "one_against_the_others"]
 
 
-    # Train
-    trainer_trained = create_model(MODEL_BASE, MODEL_NAME, dataset)
-    print(trainer_trained.evaluate())
-    if LOGGING:
-        wandb.finish()
+    # get confogurations
+    configs = []
+    for model in models:
+        for fields in field_config:
+            for type in types:
+                if type == "multiclass":
+                    mapping = {'passage': 0, 'phrase':1, 'multi':2}
+                    configs.append((model, fields, mapping))
 
-    
-    trainer_trained.save_model(os.path.join('./Models', MODEL_NAME+"-"+now))  # save model
+
+                elif type == "one_against_the_others":
+                    classes = ["passage", "phrase", "multi"]
+                    for class_ in classes:
+                        mapping = {}
+                        for c in classes:
+                            if c == class_:
+                                mapping[c] = 1
+                            else:
+                                mapping[c] = 0
+                        configs.append((model, fields, mapping))
+
+    for model, fields, mapping in configs:
+
+        MODEL_NAME = config_name(model, fields, mapping)
+        print("Start training")
+        print("Configs:", model, fields, mapping)
+        print("Name:", MODEL_NAME)
+
+        # Load dataset
+        dataset = load_dataset(fields=fields, files=data_paths, mapping=mapping)
+        dataset = preprocess_dataset(dataset=dataset, model_base=MODEL_BASE, model_name=model)
+
+        if model.endswith("full"):
+            model = 
+
+
+        # Logging
+        if LOGGING:
+            wandb.init(project=PROJECT_NAME, entity="jueri")
+
+
+        # Train
+        trainer_trained = create_model(MODEL_BASE, model, dataset)
+        print(trainer_trained.evaluate())
+        if LOGGING:
+            wandb.finish()
+
+   
+        trainer_trained.save_model(os.path.join('./Models', MODEL_NAME+"-"+now))  # save model
+
+
+
+# Models
+
+### Fields
