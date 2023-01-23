@@ -1,0 +1,6 @@
+pandas
+tqdm
+nltk
+spacy
+scikit-learn
+numpy

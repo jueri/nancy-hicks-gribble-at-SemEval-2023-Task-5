@@ -1,0 +1,6 @@
+pandas 
+jupyterlab
+docker
+transformers
+tqdm
+torch

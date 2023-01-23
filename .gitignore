@@ -133,3 +133,4 @@ Data/*
 wandb
 results/
 
+*/models/*
