@@ -76,7 +76,7 @@ def get_multi(row, model_multi):
             current_context = re.sub(current_result, '', current_context)
     except:
         print("Error generating multipart spoiler")
-        results = "Error"
+        results = ["Error"]
     return results
     
 
