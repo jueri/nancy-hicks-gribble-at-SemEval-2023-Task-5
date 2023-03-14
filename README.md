@@ -19,7 +19,7 @@ Data: is the directory where the scripts expect the [original dataset](https://p
 - [task_2](https://github.com/jueri/nancy-hicks-gribble-at-SemEval-2023-Task-5/tree/main/task_2): contains the code for the single submission of the team for the second task. The system was called `SHORT-SCREW`.
 
 ## Models
-Due to the size of the models used for submission and testing, they are not part of the repository but can be retrieved through [this link]().
+Due to the size of the models used for submission and testing, they are not part of the repository but can be retrieved through [this link](https://th-koeln.sciebo.de/s/HBqf8Z5ynqW0jSc).
 
 |System|Container|Model|
 |---|---|---|
